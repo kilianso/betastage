@@ -2,8 +2,6 @@
 	
 	function printPdf(action, button){
 		var doc = new jsPDF();
-
-
 		var para='JSPDF is the HTML5 client-side solution for generating PDFs. This is perfect for event tickets, reports, and certificates. Just include the JSPDF library in your <head>, generate your PDF using the many built-in functions';
 
 		var doc = new jsPDF(); 
@@ -80,17 +78,33 @@
 	}
 	section {
 		display: flex;
-		min-width: 480px;
 		flex: 1 0 50%;
-    	align-items: center;
+		min-width: 480px;
+		padding: 5rem;
 		justify-content: center;
 	}
 	.controls {
+		flex-direction: column;
 		border-right: 1px solid black;
 	}
+	input, textarea, select {
+		display: block;
+		width: 100%;
+		padding: 1rem;
+	}
+	.controls__buttons {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 1rem;
+	}
+	.controls__buttons * {
+		flex: 0 0 32%;
+		text-align: center;
+	}
+
 	button, button:active, button:focus,
 	a[type="button"], a[type="button"]:active, a[type="button"]:focus {
-		margin: 0 1rem;
+		margin: 0;
 		appearance: none;
 		-webkit-appearance: none;
 		border: none;
@@ -106,9 +120,29 @@
 </style>
 <main>
 	<section class="controls">
-		<button on:click={() => printPdf(1, this)}>Preview</button>
-		<button on:click={() => {printPdf(2, this)}}>Download PDF</button>
-		<a type="button" href="/" download="betastage.jpg" on:click={(e) => {printPdf(3, e.target)}}>Download JPG</a>
+		<form class="controls__form">
+			<input type="date" placeholder="Datum">
+			<input type="time" placeholder="Zeit">
+			<input type="text" maxlength="30" placeholder="Ort">
+			<textarea maxlength="100" rows="3" placeholder="Text max. 100 Zeichen"></textarea>
+			<label for="color">Farbe</label>
+			<select name="color" id="color">
+				<option selected value="none">Keine</option>
+				<option value="green">Grün</option>
+				<option value="pink">Pink</option>
+				<option value="orange">Orange</option>
+			</select>
+			<label for="format">Format</label>
+			<select name="color" id="format">
+				<option selected value="square">Quadratisch</option>
+				<option value="a4">A4</option>
+			</select>
+		</form>
+		<div class="controls__buttons">
+			<button on:click={() => printPdf(1, this)}>Preview</button>
+			<button on:click={() => {printPdf(2, this)}}>Download PDF</button>
+			<a type="button" href="/" download="betastage.jpg" on:click={(e) => {printPdf(3, e.target)}}>Download JPG</a>
+		</div>
 	</section>
 	<section class="preview">
 		<div id="canvas"></div>
