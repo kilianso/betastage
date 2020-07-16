@@ -1,30 +1,41 @@
 <script>
+	import dayjs from 'dayjs';
+	import 'dayjs/locale/de';
 
 	let date,
-		time,
+		startTime,
+		endTime,
 		place,
-		text = 'The quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dog',
-		color = '#000000',
+		text,
+		color,
+		textColor = '#3F4EA9',
 		format;
+
+	$: header = ['Beta Stage Festival', dayjs(date).locale('de').format('DD.MMMM YYYY')];
+	$: timePlace = [startTime + ' — ' + endTime + ' Uhr', place];
 	
 	function printPdf(action, button){
 		// orientation, unit, format, compression
-		const doc = new jsPDF('portrait', 'mm', format, true),
+		const doc = new jsPDF('portrait', 'px', (format == 'square' ? [1000,1000] : format), true),
 			posterWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth(),
 			posterHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight(),
-			textWidth = posterWidth*0.85, /* para width will 85% of the page width. */
-			textLeftMargin = (posterWidth-textWidth)/2,/* Left margin will be half of the remaining space*/
-			textTopMargin = 30,
+			textWidth = posterWidth * 0.5, /* text width cannot be more than 50% of total width. */
+			baseSize = posterWidth / 15,
 			lines = doc.splitTextToSize(text, textWidth);
 
 		doc.setFillColor(color);
 		doc.rect(0, 0, posterWidth, posterHeight, "F");
-		doc.setTextColor(255,0,0);
-		doc.text(textLeftMargin, textTopMargin , lines);
+		doc.setTextColor(textColor);
+		doc.setFontSize(baseSize);
+		doc.text(baseSize, baseSize * 1.5 , header);
+		doc.setFontSize(baseSize / 2);
+		doc.text(baseSize, baseSize * 3 , timePlace);
+		doc.text(baseSize, baseSize * 4 , lines);
 		
 		if (action === 1) {
 			let uri = doc.output('datauristring');
-			renderPDF(uri, document.getElementById('canvas'));
+			document.getElementById('preview').innerHTML = '';
+			renderPDF(uri, document.getElementById('preview'));
 		} else if (action === 2) {
 			doc.save('betastage.pdf');
 		}
@@ -36,7 +47,7 @@
 	}
 
 	function generatePdfPreview() {
-		renderPDF(dataURL, document.getElementById('canvas'));
+		renderPDF(dataURL, document.getElementById('preview'));
 	}
 	// * this is not important for jsPDF, it's here just to render the result *
 	// It's a Mozilla lib called PDFjs that handles pdf rendering
@@ -88,7 +99,7 @@
 	}
 	main {
 		display: flex;
-		height: 100%;
+		min-height: 100%;
 		flex-wrap: wrap;
 	}
 	section {
@@ -100,7 +111,12 @@
 	}
 	.controls {
 		flex-direction: column;
-		border-right: 1px solid black;
+		background: #f3f3f3;
+	}
+	#preview {
+		position: sticky;
+		top: 0;
+		align-self: flex-start;
 	}
 	input, textarea, select {
 		display: block;
@@ -137,19 +153,25 @@
 	<section class="controls">
 		<h1>BETA Stage Generator</h1>
 		<form class="controls__form">
-			<input type="date" placeholder="Datum">
-			<input type="time" placeholder="Zeit">
-			<input type="text" maxlength="30" placeholder="Ort">
-			<textarea maxlength="100" rows="3" placeholder="Text max. 100 Zeichen"></textarea>
+			<label for="date">Datum</label>
+			<input id="date" type="date" placeholder="Datum" bind:value={date}>
+			<label for="start">Startzeit</label>
+			<input id="start" type="time" bind:value={startTime}>
+			<label for="end">Endzeit</label>
+			<input id="end" type="time" bind:value={endTime}>
+			<label for="location">Location</label>
+			<input id="location" type="text" maxlength="30" placeholder="Wo findet der Event statt?" bind:value={place}>
+			<label for="text">Text</label>
+			<textarea id="text" maxlength="100" rows="3" placeholder="Beschreibung max. 100 Zeichen" bind:value={text}></textarea>
 			<label for="color">Farbe</label>
-			<select name="color" id="color">
-				<option selected value="none">Keine</option>
-				<option value="green">Grün</option>
-				<option value="pink">Pink</option>
-				<option value="orange">Orange</option>
+			<select name="color" id="color" bind:value={color}>
+				<option selected value="#99FF00">Grün</option>
+				<option value="#E400FF">Pink</option>
+				<option value="#FF7700">Orange</option>
+				<option value="#FFFFFF">Weiss</option>
 			</select>
 			<label for="format">Format</label>
-			<select name="color" id="format">
+			<select name="color" id="format" bind:value={format}>
 				<option selected value="square">Quadratisch</option>
 				<option value="a4">A4</option>
 			</select>
@@ -160,7 +182,7 @@
 			<a type="button" href="/" download="betastage.jpg" on:click={(e) => {printPdf(3, e.target)}}>Download JPG</a>
 		</div>
 	</section>
-	<section class="preview">
-		<div id="canvas"></div>
+	<section id="preview">
+		<!-- preview goes here -->
 	</section>
 </main>
