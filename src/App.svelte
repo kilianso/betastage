@@ -1,16 +1,26 @@
 <script>
+
+	let date,
+		time,
+		place,
+		text = 'The quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dogThe quick brown fox jumps over the lazy dog',
+		color = '#000000',
+		format;
 	
 	function printPdf(action, button){
-		var doc = new jsPDF();
-		var para='JSPDF is the HTML5 client-side solution for generating PDFs. This is perfect for event tickets, reports, and certificates. Just include the JSPDF library in your <head>, generate your PDF using the many built-in functions';
+		// orientation, unit, format, compression
+		const doc = new jsPDF('portrait', 'mm', format, true),
+			posterWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth(),
+			posterHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight(),
+			textWidth = posterWidth*0.85, /* para width will 85% of the page width. */
+			textLeftMargin = (posterWidth-textWidth)/2,/* Left margin will be half of the remaining space*/
+			textTopMargin = 30,
+			lines = doc.splitTextToSize(text, textWidth);
 
-		var doc = new jsPDF(); 
-		var pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
-		var ParaWidth=pageWidth*0.85; /* para width will 85% of the page width. */
-		var LeftMargin=(pageWidth-ParaWidth)/2;/* Left margin will be half of the remaining space*/
-		var TopMargin=30;/*According to your requirement*/
-		var lines = doc.splitTextToSize(para, ParaWidth);
-		doc.text(LeftMargin, TopMargin , lines);
+		doc.setFillColor(color);
+		doc.rect(0, 0, posterWidth, posterHeight, "F");
+		doc.setTextColor(255,0,0);
+		doc.text(textLeftMargin, textTopMargin , lines);
 		
 		if (action === 1) {
 			let uri = doc.output('datauristring');
@@ -32,7 +42,7 @@
 	// It's a Mozilla lib called PDFjs that handles pdf rendering
 	function renderPDF(url, canvasContainer, options) {
 
-		options = options || { scale: 1 };
+		options = options || { scale: 2 };
 			
 		function renderPage(page) {
 			var viewport = page.getViewport(options.scale);
@@ -41,8 +51,8 @@
 			var canvas = document.createElement('canvas');
 			var ctx = canvas.getContext('2d');
 			var renderContext = {
-			canvasContext: ctx,
-			viewport: viewport
+				canvasContext: ctx,
+				viewport: viewport
 			};
 			
 			canvas.height = viewport.height;
@@ -70,6 +80,11 @@
 	:global(html, body) {
 		margin: 0;
 		padding: 0;
+	}
+	:global(canvas) {
+		width: 100%;
+		max-height: calc(100vh - 10rem);
+		object-fit: contain;
 	}
 	main {
 		display: flex;
@@ -120,6 +135,7 @@
 </style>
 <main>
 	<section class="controls">
+		<h1>BETA Stage Generator</h1>
 		<form class="controls__form">
 			<input type="date" placeholder="Datum">
 			<input type="time" placeholder="Zeit">
