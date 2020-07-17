@@ -219,11 +219,11 @@
 		<h1>BETA Stage — Grafik Generator</h1>
 		<form class="controls__form" autocomplete="off">
 			<label for="date">Datum</label>
-			<input id="date" type="date" placeholder="Datum" required bind:value={date}>
+			<input id="date" type="date" placeholder="Wähle ein Datum" required bind:value={date}>
 			<label for="start">Startzeit</label>
-			<input id="start" type="time" required bind:value={startTime}>
+			<input id="start" type="time" placeholder="Wann geht's los?" required bind:value={startTime}>
 			<label for="end">Endzeit</label>
-			<input id="end" type="time" required bind:value={endTime}>
+			<input id="end" type="time" placeholder="Wann ist es zu Ende?" required bind:value={endTime}>
 			<label for="location">Location</label>
 			<input id="location" type="text" maxlength="30" placeholder="Wo findet der Event statt?" bind:value={place}>
 			<label for="text">Text</label>
