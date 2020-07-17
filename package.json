@@ -18,7 +18,7 @@
   "dependencies": {
     "@rollup/plugin-json": "^4.1.0",
     "dayjs": "^1.8.29",
-    "jspdf": "^1.5.3",
+    "jspdf-yworks": "^2.1.1",
     "pdfjs": "^2.3.9",
     "sirv-cli": "^0.4.4"
   }
