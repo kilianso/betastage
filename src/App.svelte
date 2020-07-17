@@ -65,7 +65,7 @@
 	
 	function renderPDF(url, canvasContainer, options) {
 
-		options = options || { scale: 2 };
+		options = options || { scale: 3 };
 			
 		function renderPage(page) {
 			let viewport = page.getViewport(options.scale),
@@ -231,6 +231,7 @@
 			<label for="color">Farbe</label>
 			<select name="color" id="color" bind:value={color}>
 				<option selected value="#99FF00">Grün</option>
+				<option value="#E2E3C6">Beige</option>
 				<option value="#E400FF">Pink</option>
 				<option value="#FF7700">Orange</option>
 				<option value="#FFFFFF">Weiss</option>
