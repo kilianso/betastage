@@ -22,7 +22,7 @@
 	
 	function generatePDF(action, button){
 		// orientation, unit, format, compression
-		const doc = new jsPDF('portrait', 'mm', (format == 'square' ? [210,210] : format), true),
+		const doc = new jsPDF('portrait', 'mm', (format == 'square' ? [210,210] : format), false),
 			posterWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth(),
 			posterHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight(),
 			textWidth = posterWidth / 2, /* text width cannot be more than 50% of total width. */
