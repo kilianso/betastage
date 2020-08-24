@@ -9,12 +9,15 @@
 		place,
 		text,
 		color,
+		linesHeight,
+		locationHeight,
 		textColor = '#3F4EA9',
 		format,
-		svg = [,,,];
+		svg = [,,,],
+		logo = 'Beta Stage\n Festival';
 
-	$: header = ['Beta Stage Festival', dayjs(date).locale('de').format('DD.MMMM YYYY')];
-	$: timePlace = [(startTime || 16) + ' — ' + (endTime ||  23) + ' Uhr', place || 'Dampfzentrale, Bern'];
+	$: datum = [dayjs(date).locale('de').format('DD.MMMM')];
+	$: time = [(startTime || 16) + ' — ' + (endTime ||  23) + ' Uhr'];
 
 	onMount( () => {
 		generatePDF(1);
@@ -25,27 +28,56 @@
 		const doc = new jsPDF('portrait', 'mm', (format == 'square' ? [210,210] : format), false),
 			posterWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth(),
 			posterHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight(),
-			textWidth = posterWidth / 2, /* text width cannot be more than 50% of total width. */
-			baseSize = posterWidth / 15,
-			lines = doc.splitTextToSize(text || 'Eine kurze Beschreibung zu diesem Event wird hier platziert.', textWidth);
+			textWidth = posterWidth / 3,
+			locationWidth = posterWidth / 5,
+			lines = doc.splitTextToSize(text || 'Eine kurze Beschreibung zu diesem Event wird hier platziert.', textWidth),
+			location = doc.splitTextToSize(place || 'Dampfzentrale, Bern', locationWidth);
 
+		// Global Settings
 		doc.setFont('Inter-Bold', 'bold');
-
 		doc.setFillColor(color);
 		doc.rect(0, 0, posterWidth, posterHeight, "F");
 		doc.setTextColor(textColor);
-		doc.setFontSize(baseSize * 2);
-		doc.text(baseSize / 3, baseSize , header);
-		doc.setFontSize(baseSize);
-		doc.text(baseSize / 3, baseSize * 3 , timePlace);
-		doc.text(baseSize / 3, baseSize * 3.85 , lines);
 
-		// render the svg element
+		// Header Styles
+		doc.setFontSize(35);
+		doc.text(posterWidth - 10, 20, logo, {align:'right'});
+		
+		// Footer left
+		locationHeight = doc.getTextDimensions(location);
+		doc.text(10, posterHeight - locationHeight.h - 9, datum);
+		doc.text(10, posterHeight - locationHeight.h + 5, location);
+
+
+		// Footer right
+		doc.setFontSize(16);
+		linesHeight = doc.getTextDimensions(lines);
+		doc.text(posterWidth - posterWidth / 2.35, posterHeight - linesHeight.h - 10, time);
+		doc.text(posterWidth - posterWidth / 2.35, posterHeight - linesHeight.h - 2, lines);
+		// doc.text(posterWidth - 10, posterHeight - linesHeight.h, lines, {align:'right'});
+
+
+		const factor = format === 'square' ? 0.275 : 0.375;
+		const fakeRandomPositions = [
+			{xOffset: 10, yOffset: -(svg[0].getAttribute('width') * factor) / 6},
+			{xOffset: posterWidth / 2 - (svg[0].getAttribute('width') * factor) / 2, yOffset: (svg[0].getAttribute('width') * factor) / 2},
+			{xOffset: posterWidth - (svg[0].getAttribute('width') * factor) / 1.25, yOffset: svg[0].getAttribute('width') * factor},
+			{xOffset: -(svg[0].getAttribute('width') * factor) / 6, yOffset: (svg[0].getAttribute('width') * factor) + 10},
+			{xOffset: posterWidth / 2.5, yOffset: (svg[0].getAttribute('width') * factor) + linesHeight.h},
+			{xOffset: posterWidth / (svg[0].getAttribute('width') * factor) / 4, yOffset: posterHeight / 2 - locationHeight.h * 2},
+			{xOffset: 50, yOffset: posterHeight - (svg[0].getAttribute('width') * factor) - (locationHeight.h + linesHeight.h + 15)},
+			{xOffset: posterWidth / 1.5, yOffset: posterHeight - (svg[0].getAttribute('width') * factor) - (locationHeight.h + linesHeight.h + 30)},
+		]
+
+		shuffleArray(fakeRandomPositions);
+
+		// render the SVG shapes
 		svg.forEach((el, i) => {
+			// "real" random is not working anyway. so instead, choose from one of the positionings
 			svg2pdf(svg[i], doc, {
-				xOffset: i % 2 ? Math.floor(Math.random() * posterWidth / 8) + posterWidth / 20 : posterWidth / 2 - Math.floor(Math.random() * posterWidth / 8) + posterWidth / 20,
-				yOffset: (posterHeight / 6 * i) + posterHeight / 9 ,
-				scale: format === 'square' ? 0.325 : 0.425
+				xOffset: fakeRandomPositions[i].xOffset,
+				yOffset: fakeRandomPositions[i].yOffset,
+				scale: factor
 			});
 		})
 
@@ -61,6 +93,13 @@
 				image = canvas.toDataURL('image/jpeg');
 			button.href = image;
     	}
+	}
+
+	function shuffleArray(array) {
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		}
 	}
 	
 	function renderPDF(url, canvasContainer, options) {
