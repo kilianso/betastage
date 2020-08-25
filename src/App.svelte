@@ -16,7 +16,7 @@
 		svg = [,,,],
 		logo = 'Beta Stage\n Festival';
 
-	$: datum = [dayjs(date).locale('de').format('DD.MMMM')];
+	$: datum = [dayjs(date).locale('de').format('DD. MMMM')];
 	$: time = [(startTime || 16) + ' — ' + (endTime ||  23) + ' Uhr'];
 
 	onMount( () => {
@@ -28,29 +28,31 @@
 		const doc = new jsPDF('portrait', 'mm', (format == 'square' ? [210,210] : format), false),
 			posterWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth(),
 			posterHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight(),
-			textWidth = posterWidth / 3,
+			textWidth = posterWidth / 3.25,
 			locationWidth = posterWidth / 5,
 			lines = doc.splitTextToSize(text || 'Eine kurze Beschreibung zu diesem Event wird hier platziert.', textWidth),
 			location = doc.splitTextToSize(place || 'Dampfzentrale, Bern', locationWidth);
 
 		// Global Settings
 		doc.setFont('Inter-Bold', 'bold');
+		doc.setLineHeightFactor(1.05);
 		doc.setFillColor(color);
 		doc.rect(0, 0, posterWidth, posterHeight, "F");
 		doc.setTextColor(textColor);
 
 		// Header Styles
-		doc.setFontSize(35);
-		doc.text(posterWidth - 10, 20, logo, {align:'right'});
+		doc.setFontSize(36);
+		doc.text(posterWidth - 10, 20, logo, {align:'right', charSpace: -0.25});
 		
 		// Footer left
 		locationHeight = doc.getTextDimensions(location);
-		doc.text(10, posterHeight - locationHeight.h - 9, datum);
-		doc.text(10, posterHeight - locationHeight.h + 5, location);
+		doc.text(10, posterHeight - locationHeight.h - 9, datum, {charSpace: -0.25});
+		doc.text(10, posterHeight - locationHeight.h + 5, location, {charSpace: -0.25});
 
 
 		// Footer right
-		doc.setFontSize(16);
+		doc.setFontSize(18);
+		doc.setLineHeightFactor(1.15);
 		linesHeight = doc.getTextDimensions(lines);
 		doc.text(posterWidth - posterWidth / 2.35, posterHeight - linesHeight.h - 10, time);
 		doc.text(posterWidth - posterWidth / 2.35, posterHeight - linesHeight.h - 2, lines);
@@ -273,11 +275,12 @@
 			<textarea id="text" maxlength="85" rows="3" placeholder="Beschreibung max. 85 Zeichen" bind:value={text}></textarea>
 			<label for="color">Farbe</label>
 			<select name="color" id="color" bind:value={color}>
-				<option selected value="#99FF00">Grün</option>
+				<option selected value="#F1FE53">Gelb</option>
+				<option value="#99FF00">Grün</option>
+				<option value="#FFFFFF">Weiss</option>
 				<option value="#E2E3C6">Beige</option>
 				<option value="#E400FF">Pink</option>
 				<option value="#FF7700">Orange</option>
-				<option value="#FFFFFF">Weiss</option>
 			</select>
 			<label for="format">Format</label>
 			<select name="color" id="format" bind:value={format}>
