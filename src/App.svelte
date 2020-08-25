@@ -73,6 +73,10 @@
 
 		// render the SVG shapes
 		svg.forEach((el, i) => {
+			let num = Math.floor(Math.random()*20) + 1; // this will get a number between 1 and 99;
+				num *= Math.floor(Math.random()*2) == 1 ? 1 : -1;
+			
+			el.style.transform = 'rotate('+ num + 'deg)';
 			// "real" random is not working anyway. so instead, choose from one of the positionings
 			svg2pdf(svg[i], doc, {
 				xOffset: fakeRandomPositions[i].xOffset,
